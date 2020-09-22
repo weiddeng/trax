@@ -48,6 +48,7 @@ from trax.fastmath import numpy as jnp
 from trax.layers import base
 from trax.layers import combinators as cb
 from trax.layers import core
+from trax.layers.assert_shape import assert_shape
 from trax.layers.base import Fn
 
 
@@ -55,6 +56,7 @@ from trax.layers.base import Fn
 # pylint: disable=invalid-name
 
 
+@assert_shape('bsd,b11s->bsd,b11s')
 def Attention(d_feature, n_heads=1, dropout=0.0, mode='train'):
   """Returns a layer that maps (activations, mask) to (new_activations, mask).
 
@@ -84,6 +86,7 @@ def Attention(d_feature, n_heads=1, dropout=0.0, mode='train'):
   )
 
 
+@assert_shape('bSq,bsk,bsv,b1xs->bSd,b1xs')
 def AttentionQKV(d_feature, n_heads=1, dropout=0.0, mode='train'):
   """Returns a layer that maps (q, k, v, mask) to (activations, mask).
 
@@ -108,6 +111,7 @@ def AttentionQKV(d_feature, n_heads=1, dropout=0.0, mode='train'):
   )
 
 
+@assert_shape('bSq,bsq,bsd,b1xs->bSd,b1xs')
 class PureAttention(base.Layer):
   """Returns a layer that maps (q, k, v, mask) to (activations, mask).
 
@@ -228,6 +232,7 @@ def DotProductAttention(queries, keys, values, mask, dropout, mode, rng):
   return out, dots
 
 
+@assert_shape('bsd->bsd')
 def CausalAttention(d_feature, n_heads=1, dropout=0.0,
                     max_inference_length=2048, mode='train'):
   """Returns a layer that maps activations to activations, with causal masking.
@@ -289,6 +294,7 @@ def CausalAttention(d_feature, n_heads=1, dropout=0.0,
   )
 
 
+@assert_shape('bsd,bsd,bsd->bsd')
 class DotProductCausalAttention(base.Layer):
   """Layer that computes attention strengths by masking out the "future".
 
@@ -351,6 +357,7 @@ class DotProductCausalAttention(base.Layer):
       self.state = _fast_inference_init_state(input_signature, self._max_len)
 
 
+@assert_shape('*d->*d')
 def ShiftRight(n_positions=1, mode='train'):
   """Returns a layer that can insert padding to shift the input sequence.
 
@@ -368,6 +375,7 @@ def ShiftRight(n_positions=1, mode='train'):
   return Fn(f'ShiftRight({n_positions})', f)
 
 
+@assert_shape('bs->b11s')
 def PaddingMask(pad=0):
   """Returns a layer that maps integer sequences to padding masks.
 
@@ -422,6 +430,7 @@ def EncoderDecoderMask():
   return Fn('EncoderDecoderMask', f)
 
 
+@assert_shape('*d->*d')
 class PositionalEncoding(base.Layer):
   """Implements bare positional encoding.
 
